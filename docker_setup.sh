@@ -29,4 +29,4 @@ apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin do
 
 # Ask for a username and add it to the docker group
 read -p "Enter the username to be added to the docker group: " username
-usermod -aG docker $username
+/usr/sbin/usermod -aG docker $username
