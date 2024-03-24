@@ -24,6 +24,8 @@ echo 'alias ll="ls -la"' >> /home/$username/.bashrc
 # Configure SSH
 echo "Configuring SSH..."
 sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin no/' /etc/ssh/sshd_config
+sed -i 's/#SyslogFacility AUTH/SyslogFacility AUTH/' /etc/ssh/sshd_config
+sed -i 's/#LogLevel INFO/LogLevel INFO/' /etc/ssh/sshd_config
 echo "AllowUsers $username" >> /etc/ssh/sshd_config
 systemctl restart sshd
 
@@ -35,7 +37,7 @@ cat << EOF > /etc/fail2ban/jail.local
 bantime = 6000
 findtime = 6000
 maxretry = 5
-backend = auto
+backend = systemd
 usedns = warn
 destemail = root@localhost
 sender = root@localhost
