@@ -54,7 +54,6 @@ echo "Installing msmtp..."
 apt-get install -y msmtp
 
 # Prompt for SMTP username and password
-read -p 'Enter your SMTP username: ' smtp_username
 read -sp 'Enter your SMTP password: ' smtp_password
 echo
 
@@ -72,7 +71,7 @@ account        mailserver
 host           svnaboo.dahara.de
 port           587
 from           notification@dahara.de
-user           $smtp_username
+user           notification@dahara.de
 password       $smtp_password
 
 # Set a default account
