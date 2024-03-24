@@ -34,9 +34,9 @@ cat << EOF > /etc/fail2ban/jail.local
 [DEFAULT]
 mta = sendmail
 sendmail_path = /usr/bin/msmtp
-bantime = 600
-findtime = 600
-maxretry = 3
+bantime = 6000
+findtime = 6000
+maxretry = 5
 backend = systemd
 usedns = warn
 destemail = fail2ban@dahara.de
