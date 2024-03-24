@@ -32,7 +32,7 @@ echo "Installing and configuring fail2ban..."
 apt-get install -y fail2ban
 cat << EOF > /etc/fail2ban/jail.local
 [DEFAULT]
-mta = sendmail
+mta = msmtp
 sendmail_path = /usr/bin/msmtp
 bantime = 6000
 findtime = 6000
@@ -41,11 +41,71 @@ backend = systemd
 usedns = warn
 destemail = fail2ban@dahara.de
 sender = notification@dahara.de
-action = %(action_mwl)s
+action = %(action_mw)s
 
 [sshd]
 enabled = true
 EOF
+
+# Define the path to the configuration file
+CONFIG_FILE="/etc/fail2ban/action.d/msmtp-whois.conf"
+
+# Write the configuration to the file
+cat << EOF | sudo tee $CONFIG_FILE
+# Fail2Ban configuration file
+#
+# Author: Yaroslav Halchenko
+#
+# \$Revision: 728 \$
+#
+
+[Definition]
+
+# Option:  actionstart
+# Notes.:  command executed once at the start of Fail2Ban.
+# Values:  CMD
+#
+actionstart = printf %%b "Subject: [Fail2Ban] <name>: started on <fq-hostname>\nFrom: Fail2Ban <<sender>>\nTo: <dest>\n\nHi,\n\nThe jail <name> has been started successfully.\n\nRegards,\nFail2Ban"|/usr/bin/msmtp -a default <dest>
+
+# Option:  actionstop
+# Notes.:  command executed once at the end of Fail2Ban
+# Values:  CMD
+#
+actionstop = printf %%b "Subject: [Fail2Ban] <name>: stopped  on <fq-hostname>\nFrom: Fail2Ban <<sender>>\nTo: <dest>\n\nHi,\n\nThe jail <name> has been stopped.\n\nRegards,\nFail2Ban"|/usr/bin/msmtp -a default <dest>
+
+# Option:  actioncheck
+# Notes.:  command executed once before each actionban command
+# Values:  CMD
+#
+actioncheck =
+
+# Option:  actionban
+# Notes.:  command executed when banning an IP. Take care that the
+#          command is executed with Fail2Ban user rights.
+# Tags:    See jail.conf(5) man page
+# Values:  CMD
+#
+actionban = printf %%b "Subject: [Fail2Ban] <name>: banned <ip> on <fq-hostname>\nFrom: Fail2Ban <<sender>>\nTo: <dest>\n\nHi,\n\nThe IP <ip> has just been banned by Fail2Ban after\n<failures> attempts against <name>.\n\nHere are more information about <ip>:\n\n\`/usr/bin/whois <ip>\`\n\nRegards,\nFail2Ban"|/usr/bin/msmtp -a default <dest>
+
+# Option:  actionunban
+# Notes.:  command executed when unbanning an IP. Take care that the
+#          command is executed with Fail2Ban user rights.
+# Tags:    See jail.conf(5) man page
+# Values:  CMD
+#
+actionunban = printf %%b "Subject: [Fail2Ban] <name>: unbanned <ip> on <fq-hostname>\nFrom: Fail2Ban <<sender>>\nTo: <dest>\n\nHi,\n\nThe IP <ip> has just been unbanned by Fail2Ban.\n\nRegards,\nFail2Ban"|/usr/bin/msmtp -a default <dest>
+
+[Init]
+
+# Default name of the chain
+#
+name = default
+EOF
+
+# Print a success message
+echo "Configuration file $CONFIG_FILE created successfully."
+
+
 systemctl enable fail2ban
 systemctl start fail2ban
 
