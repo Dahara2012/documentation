@@ -52,13 +52,6 @@ CONFIG_FILE="/etc/fail2ban/action.d/msmtp-whois.conf"
 
 # Write the configuration to the file
 cat << EOF | sudo tee $CONFIG_FILE
-# Fail2Ban configuration file
-#
-# Author: Yaroslav Halchenko
-#
-# \$Revision: 728 \$
-#
-
 [Definition]
 
 # Option:  actionstart
