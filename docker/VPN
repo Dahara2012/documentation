@@ -1,0 +1,34 @@
+services:
+  gluetun:
+    image: qmcgaw/gluetun
+    container_name: gluetun
+    cap_add:
+      - NET_ADMIN
+    ports:
+      - "8080:8080" #qbit
+    environment:
+      - VPN_SERVICE_PROVIDER=airvpn
+      - VPN_TYPE=wireguard
+      - WIREGUARD_PRIVATE_KEY=???
+      - WIREGUARD_PRESHARED_KEY=???
+      - WIREGUARD_ADDRESSES=1.2.3.4/32
+      - SERVER_COUNTRIES=Netherlands
+      - FIREWALL_VPN_INPUT_PORTS=12345
+    restart: always
+  qbittorrent:
+    container_name: qbittorrent
+    image: ghcr.io/hotio/qbittorrent
+    network_mode: "service:gluetun"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - UMASK=002
+      - TZ=Europe/Berlin
+      - WEBUI_PORTS=8080/tcp,8080/udp
+    volumes:
+      - ./config:/config
+      - /mnt/media/download:/data
+    restart: always
+    depends_on:
+      gluetun:
+        condition: service_healthy
